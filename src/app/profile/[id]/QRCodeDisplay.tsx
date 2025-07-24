@@ -10,11 +10,20 @@ interface QRCodeDisplayProps {
 export default function QRCodeDisplay({ profileId }: QRCodeDisplayProps) {
   const [showPrintView, setShowPrintView] = useState(false);
   const [profileUrl, setProfileUrl] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Set URL setelah component mount di client side
+  // Set URL dan detect mobile setelah component mount di client side
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setProfileUrl(`${window.location.origin}/profile/${profileId}`);
+      setIsMobile(window.innerWidth < 640);
+
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 640);
+      };
+
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
     }
   }, [profileId]);
 
@@ -54,21 +63,21 @@ export default function QRCodeDisplay({ profileId }: QRCodeDisplayProps) {
 
   return (
     <>
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-3 sm:space-y-4">
         {/* QR Code */}
         <div id="qr-code" className="flex justify-center">
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
+          <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-gray-200">
             {profileUrl ? (
               <QRCodeSVG
                 value={profileUrl}
-                size={200}
+                size={isMobile ? 150 : 200}
                 level="M"
               />
             ) : (
-              <div className="w-[200px] h-[200px] flex items-center justify-center bg-gray-100 rounded">
+              <div className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] flex items-center justify-center bg-gray-100 rounded">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-500">Memuat QR Code...</p>
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  <p className="text-xs sm:text-sm text-gray-500">Memuat QR Code...</p>
                 </div>
               </div>
             )}
@@ -76,7 +85,7 @@ export default function QRCodeDisplay({ profileId }: QRCodeDisplayProps) {
         </div>
 
         {/* Profile Info */}
-        <div className="text-sm text-gray-600">
+        <div className="text-xs sm:text-sm text-gray-600">
           <p>ID Profil: <span className="font-mono font-semibold">{profileId}</span></p>
           <p className="mt-1">Scan untuk akses cepat</p>
         </div>
