@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/components/ProtectedRoute';
 import { logout, apiClient } from '@/utils/auth';
 
@@ -109,48 +110,11 @@ export default function AdminProfilesPage() {
 
   return (
     <ProtectedRoute requireAdmin={true}>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-3">
-                <Link href="/admin" className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">L</span>
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold text-gray-900">Daftar Semua Lansia</h1>
-                    <p className="text-sm text-gray-500">{user?.posyandu_name}</p>
-                  </div>
-                </Link>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href="/form" 
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Daftar Baru
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <AdminLayout
+        title="Daftar Semua Lansia"
+        subtitle={`Kelola data kesehatan lansia ${user?.posyandu_name}`}
+      >
+        <div className="p-6 space-y-6">
           {/* Stats Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -341,8 +305,8 @@ export default function AdminProfilesPage() {
               {searchTerm && ` untuk pencarian "${searchTerm}"`}
             </div>
           )}
-        </main>
-      </div>
+        </div>
+      </AdminLayout>
     </ProtectedRoute>
   );
 }

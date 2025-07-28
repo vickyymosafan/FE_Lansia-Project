@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/components/ProtectedRoute';
 import { logout, apiClient } from '@/utils/auth';
+import { FaHandPaper } from 'react-icons/fa';
 
 interface DashboardStats {
   totalLansia: number;
@@ -67,8 +69,8 @@ export default function AdminDashboard() {
         pemeriksaanBulanIni
       });
 
-      // Set recent profiles (5 terbaru)
-      setRecentProfiles(profiles.slice(0, 5));
+      // Set recent profiles (semua data untuk scroll)
+      setRecentProfiles(profiles);
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -97,59 +99,57 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute requireAdmin={true}>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">A</span>
+      <AdminLayout
+        title="Dashboard Admin"
+        subtitle={`Selamat datang, ${user?.username} - ${user?.posyandu_name}`}
+      >
+        <div className="p-6 space-y-6">
+          {/* Welcome Banner */}
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <FaHandPaper className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold mb-1">Selamat Datang, {user?.username}!</h2>
+                    <p className="text-blue-100 text-sm">Kelola data kesehatan lansia {user?.posyandu_name} dengan mudah</p>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-xs text-blue-100">Online</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <svg className="w-3 h-3 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-xs text-blue-100">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Dashboard Admin</h1>
-                  <p className="text-sm text-gray-500">
-                    Selamat datang, {user?.username} - {user?.posyandu_name}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href="/form" 
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Daftar Lansia Baru
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Logout
-                </button>
               </div>
             </div>
           </div>
-        </header>
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Lansia</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {isLoading ? '...' : stats.totalLansia}
-                  </p>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">
+                    {isLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
+                    ) : (
+                      stats.totalLansia
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Terdaftar di sistem</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -157,15 +157,20 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Pemeriksaan</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {isLoading ? '...' : stats.totalPemeriksaan}
-                  </p>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">
+                    {isLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
+                    ) : (
+                      stats.totalPemeriksaan
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Riwayat kesehatan</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -173,16 +178,20 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Lansia Aktif</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {isLoading ? '...' : stats.lansiaAktif}
-                  </p>
-                  <p className="text-xs text-gray-500">30 hari terakhir</p>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">
+                    {isLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
+                    ) : (
+                      stats.lansiaAktif
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">30 hari terakhir</p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -190,16 +199,20 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Bulan Ini</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {isLoading ? '...' : stats.pemeriksaanBulanIni}
-                  </p>
-                  <p className="text-xs text-gray-500">Pemeriksaan baru</p>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">
+                    {isLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
+                    ) : (
+                      stats.pemeriksaanBulanIni
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Pemeriksaan baru</p>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -208,100 +221,203 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Link 
-                  href="/admin/profiles" 
-                  className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          {/* Quick Actions & Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Quick Actions */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-gray-900">Aksi Cepat</h3>
+                  <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">Daftar Lansia</span>
-                </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Link
+                    href="/admin/profiles"
+                    className="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-all duration-200"
+                  >
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 text-center">Daftar Lansia</span>
+                    <span className="text-xs text-gray-500 text-center mt-1">Kelola data</span>
+                  </Link>
 
-                <Link 
-                  href="/scan" 
-                  className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Scan QR Code</span>
-                </Link>
+                  <Link
+                    href="/scan"
+                    className="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition-all duration-200"
+                  >
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-3">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 text-center">Scan QR Code</span>
+                    <span className="text-xs text-gray-500 text-center mt-1">Akses cepat</span>
+                  </Link>
 
-                <Link 
-                  href="/form" 
-                  className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Daftar Baru</span>
-                </Link>
+                  <Link
+                    href="/form"
+                    className="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all duration-200"
+                  >
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 text-center">Daftar Baru</span>
+                    <span className="text-xs text-gray-500 text-center mt-1">Tambah lansia</span>
+                  </Link>
 
-                <Link 
-                  href="/" 
-                  className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Beranda</span>
-                </Link>
+                  <Link
+                    href="/"
+                    className="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200"
+                  >
+                    <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mb-3">
+                      <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 text-center">Beranda</span>
+                    <span className="text-xs text-gray-500 text-center mt-1">Halaman utama</span>
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* Recent Profiles */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Lansia Terbaru</h3>
-                <Link 
-                  href="/admin/profiles" 
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            {/* Recent Activity */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">Aktivitas Terbaru</h3>
+                <Link
+                  href="/admin/profiles"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
                 >
-                  Lihat Semua
+                  Lihat Semua →
                 </Link>
               </div>
-              <div className="space-y-3">
-                {isLoading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
-                  </div>
-                ) : recentProfiles.length > 0 ? (
-                  recentProfiles.map((profile) => (
-                    <div key={profile.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{profile.nama}</p>
-                        <p className="text-sm text-gray-500">{profile.usia} tahun</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">{formatDate(profile.created_at)}</p>
-                        <p className="text-xs text-gray-500">{profile.total_checkups} pemeriksaan</p>
-                      </div>
+              <div className="flex-1">
+                {/* Container dengan tinggi tetap untuk 4 item */}
+                <div
+                  className="space-y-2 pr-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                  style={{ height: '240px' }} // Tinggi untuk 4 item (60px per item)
+                >
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="animate-pulse">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                            <div className="flex-1 space-y-1">
+                              <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                              <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 text-gray-500">
-                    Belum ada data lansia
+                  ) : recentProfiles.length > 0 ? (
+                    recentProfiles.map((profile) => (
+                      <div key={profile.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-xs">
+                            {profile.nama.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate text-sm">
+                            {profile.nama}
+                          </p>
+                          <div className="flex items-center space-x-1 text-xs text-gray-500">
+                            <span>{profile.usia} tahun</span>
+                            <span>•</span>
+                            <span>{profile.total_checkups} pemeriksaan</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-xs text-gray-500">{formatDate(profile.created_at)}</p>
+                          <div className="flex items-center justify-end mt-1">
+                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"></div>
+                            <span className="text-xs text-green-600">Aktif</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium text-sm">Belum ada data lansia</p>
+                      <p className="text-xs text-gray-400 mt-1">Mulai dengan mendaftarkan lansia pertama</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Scroll indicator */}
+                {!isLoading && recentProfiles.length > 4 && (
+                  <div className="flex items-center justify-center mt-2 pt-2 border-t border-gray-100">
+                    <div className="flex items-center space-x-1 text-xs text-gray-400">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                      <span>Scroll untuk melihat lebih banyak ({recentProfiles.length - 4} lainnya)</span>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* Additional Info Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* System Status */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Status Sistem</h3>
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Database</span>
+                  <span className="text-sm font-medium text-green-600">Online</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Server</span>
+                  <span className="text-sm font-medium text-green-600">Aktif</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Last Backup</span>
+                  <span className="text-sm font-medium text-gray-900">Hari ini</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Tips */}
+            <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-100 p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Tips Hari Ini</h3>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                💡 Gunakan fitur <strong>Scan QR Code</strong> untuk akses cepat ke profil lansia.
+                Setiap lansia memiliki QR code unik yang dapat dipindai untuk melihat riwayat kesehatan lengkap.
+              </p>
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
     </ProtectedRoute>
   );
 }
