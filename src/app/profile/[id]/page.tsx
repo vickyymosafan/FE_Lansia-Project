@@ -60,11 +60,11 @@ function getBloodPressureStatus(bp: string): { status: string; color: string } {
   if (systolic < 120 && diastolic < 80) {
     return { status: 'Normal', color: 'text-green-600 bg-green-100' };
   } else if (systolic < 130 && diastolic < 80) {
-    return { status: 'Elevated', color: 'text-yellow-600 bg-yellow-100' };
+    return { status: 'Tinggi', color: 'text-yellow-600 bg-yellow-100' };
   } else if (systolic < 140 || diastolic < 90) {
-    return { status: 'Stage 1', color: 'text-orange-600 bg-orange-100' };
+    return { status: 'Hipertensi 1', color: 'text-orange-600 bg-orange-100' };
   } else {
-    return { status: 'Stage 2', color: 'text-red-600 bg-red-100' };
+    return { status: 'Hipertensi 2', color: 'text-red-600 bg-red-100' };
   }
 }
 
@@ -72,7 +72,7 @@ function getBloodSugarStatus(sugar: number): { status: string; color: string } {
   if (sugar < 100) {
     return { status: 'Normal', color: 'text-green-600 bg-green-100' };
   } else if (sugar < 126) {
-    return { status: 'Prediabetes', color: 'text-yellow-600 bg-yellow-100' };
+    return { status: 'Pradiabetes', color: 'text-yellow-600 bg-yellow-100' };
   } else {
     return { status: 'Diabetes', color: 'text-red-600 bg-red-100' };
   }
