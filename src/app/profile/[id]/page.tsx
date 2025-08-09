@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import QRCodeDisplay from './QRCodeDisplay';
 import AddCheckupForm from './AddCheckupForm';
+import HealthAnalysis from '@/components/HealthAnalysis';
+import { getBloodPressureStatus, getBloodSugarStatus, formatDate } from '@/utils/healthUtils';
 
 interface Profile {
   id: number;
@@ -43,40 +45,7 @@ async function getProfileData(id: string): Promise<ProfileData | null> {
   }
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
 
-function getBloodPressureStatus(bp: string): { status: string; color: string } {
-  const [systolic, diastolic] = bp.split('/').map(Number);
-  
-  if (systolic < 120 && diastolic < 80) {
-    return { status: 'Normal', color: 'text-green-600 bg-green-100' };
-  } else if (systolic < 130 && diastolic < 80) {
-    return { status: 'Tinggi', color: 'text-yellow-600 bg-yellow-100' };
-  } else if (systolic < 140 || diastolic < 90) {
-    return { status: 'Hipertensi 1', color: 'text-orange-600 bg-orange-100' };
-  } else {
-    return { status: 'Hipertensi 2', color: 'text-red-600 bg-red-100' };
-  }
-}
-
-function getBloodSugarStatus(sugar: number): { status: string; color: string } {
-  if (sugar < 100) {
-    return { status: 'Normal', color: 'text-green-600 bg-green-100' };
-  } else if (sugar < 126) {
-    return { status: 'Pradiabetes', color: 'text-yellow-600 bg-yellow-100' };
-  } else {
-    return { status: 'Diabetes', color: 'text-red-600 bg-red-100' };
-  }
-}
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -180,7 +149,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                   <p className="text-xs sm:text-sm text-gray-600">{formatDate(latestCheckup.tanggal)}</p>
                 </div>
                 <div className="px-4 sm:px-6 py-3 sm:py-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4">
                     <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-1">
                         <h3 className="text-sm sm:text-base font-medium text-gray-900">Tekanan Darah</h3>
@@ -202,9 +171,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                       <p className="text-xs sm:text-sm text-gray-600">mg/dL</p>
                     </div>
                   </div>
+                  
+                  {/* Health Analysis */}
+                  <div className="mb-4">
+                    <HealthAnalysis 
+                      tekananDarah={latestCheckup.tekanan_darah}
+                      gulaDarah={latestCheckup.gula_darah}
+                      showRecommendations={true}
+                      compact={false}
+                    />
+                  </div>
+
                   {latestCheckup.catatan && (
-                    <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg">
-                      <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-1">Catatan</h4>
+                    <div className="p-3 sm:p-4 bg-blue-50 rounded-lg">
+                      <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-1">Catatan Pemeriksaan</h4>
                       <p className="text-sm sm:text-base text-gray-700 break-words">{latestCheckup.catatan}</p>
                     </div>
                   )}

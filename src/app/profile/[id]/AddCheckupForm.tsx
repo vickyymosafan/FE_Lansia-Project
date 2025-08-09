@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { validateBloodPressureFormat } from '@/utils/healthUtils';
 
 interface AddCheckupFormProps {
   profileId: number;
@@ -17,6 +18,7 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [formData, setFormData] = useState<CheckupData>({
     tekanan_darah: '',
     gula_darah: '',
@@ -29,10 +31,50 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
       ...prev,
       [name]: value
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    // Real-time validation for blood pressure
+    if (name === 'tekanan_darah' && value.trim() !== '') {
+      const validation = validateBloodPressureFormat(value);
+      if (!validation.isValid) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: validation.message
+        }));
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    const newErrors: {[key: string]: string} = {};
+    
+    // Validate blood pressure format
+    const bpValidation = validateBloodPressureFormat(formData.tekanan_darah);
+    if (!bpValidation.isValid) {
+      newErrors.tekanan_darah = bpValidation.message;
+    }
+
+    // Validate blood sugar
+    const guladarah = parseInt(formData.gula_darah);
+    if (isNaN(guladarah) || guladarah < 50 || guladarah > 500) {
+      newErrors.gula_darah = 'Gula darah harus antara 50-500 mg/dL';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -56,6 +98,7 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
           gula_darah: '',
           catatan: ''
         });
+        setErrors({});
         setShowForm(false);
         
         // Refresh the page to show new data
@@ -79,6 +122,7 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
       gula_darah: '',
       catatan: ''
     });
+    setErrors({});
     setShowForm(false);
   };
 
@@ -105,7 +149,7 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label htmlFor="tekanan_darah" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-            Tekanan Darah *
+            Tekanan Darah (mmHg) *
           </label>
           <input
             type="text"
@@ -113,12 +157,17 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
             name="tekanan_darah"
             value={formData.tekanan_darah}
             onChange={handleChange}
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="Contoh: 120/80"
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+              errors.tekanan_darah ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            placeholder="Contoh: 130/85"
             pattern="[0-9]{2,3}/[0-9]{2,3}"
-            title="Format: sistol/diastol (contoh: 120/80)"
+            title="Format: sistol/diastol (contoh: 130/85)"
             required
           />
+          {errors.tekanan_darah && (
+            <p className="mt-1 text-xs text-red-600">{errors.tekanan_darah}</p>
+          )}
         </div>
 
         <div>
@@ -131,12 +180,17 @@ export default function AddCheckupForm({ profileId }: AddCheckupFormProps) {
             name="gula_darah"
             value={formData.gula_darah}
             onChange={handleChange}
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+              errors.gula_darah ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="Masukkan kadar gula darah"
             min="50"
             max="500"
             required
           />
+          {errors.gula_darah && (
+            <p className="mt-1 text-xs text-red-600">{errors.gula_darah}</p>
+          )}
         </div>
       </div>
 
